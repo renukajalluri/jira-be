@@ -25,7 +25,7 @@ issueRouter.post("/",userAuthFilter, async(req,res)=>{
         console.log(issue)
         console.log(issue.id);
         console.log(req.body.project_id)
-        const response = await axios.post(`http://0.0.0.0:5000/index`,
+        const response = await axios.post(`http://18.225.34.117/index`,
         {
             issue_id : issue.id,
             project_id : req.body.project_id,
@@ -79,7 +79,7 @@ issueRouter.get("/related-issues/:issueId",userAuthFilter,async(req,res)=>{
          const search =  issue.summary;
         //  console.log("s",search)
         try {
-          const data = await axios.get(`http://0.0.0.0:5000/search?search=${search}`,
+          const data = await axios.get(`http://18.225.34.117/search?search=${search}`,
           { headers :{ "Access-Control-Allow-Origin" : "*",
           "Content-type": "Application/json",
           // 'Authorization' : token
