@@ -10,7 +10,7 @@ const { userAuthFilter } = require("../utils/middleware");
 // <--------Sign Up Route------->
 authRouter.post("/sign-up-anyone", async (req, res) => {
   try {
-    if (req.params.token.job_role == "manager") {
+//     if (req.params.token.job_role == "manager") {
       const salt = await bcrypt.genSalt(10);
       const hashedPassword = await bcrypt.hash(req.body.password, salt);
       const newUser = new User({
@@ -22,9 +22,9 @@ authRouter.post("/sign-up-anyone", async (req, res) => {
       });
       const user = await newUser.save();
       return res.status(200).json(user);
-    } else {
-      return res.status(401).json("Not authorised");
-    }
+//     } else {
+//       return res.status(401).json("Not authorised");
+//     }
   } catch (error) {
     res.status(500).json({ message: error });
     return;
