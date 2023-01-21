@@ -5,32 +5,29 @@ const authRouter = require("express").Router();
 const jwt = require("jsonwebtoken");
 const { userAuthFilter } = require("../utils/middleware");
 
-
-
 // <--------Sign Up Route------->
 authRouter.post("/sign-up-anyone", async (req, res) => {
   try {
-//     if (req.params.token.job_role == "manager") {
-      const salt = await bcrypt.genSalt(10);
-      const hashedPassword = await bcrypt.hash(req.body.password, salt);
-      const newUser = new User({
-        name: req.body.name,
-        email: req.body.email,
-        password: hashedPassword,
-        job_role: req.body.job_role,
-        date_of_joining: req.body.date_of_joining,
-      });
-      const user = await newUser.save();
-      return res.status(200).json(user);
-//     } else {
-//       return res.status(401).json("Not authorised");
-//     }
+    //     if (req.params.token.job_role == "manager") {
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(req.body.password, salt);
+    const newUser = new User({
+      name: req.body.name,
+      email: req.body.email,
+      password: hashedPassword,
+      job_role: req.body.job_role,
+      date_of_joining: req.body.date_of_joining,
+    });
+    const user = await newUser.save();
+    return res.status(200).json(user);
+    //     } else {
+    //       return res.status(401).json("Not authorised");
+    //     }
   } catch (error) {
     res.status(500).json({ message: error });
     return;
   }
 });
-
 
 // <--------Sign Up Route------->
 // userAuthFilter,
@@ -60,6 +57,7 @@ authRouter.post("/sign-up", async (req, res) => {
 //  <--------login Route------->
 authRouter.post("/login", async (req, res) => {
   try {
+    console.log("hello");
     const user = {};
     const userObj = await User.findOne({ email: req.body.email });
     !userObj && res.status(401).json("wrong creditials");
@@ -82,6 +80,7 @@ authRouter.post("/login", async (req, res) => {
       },
       config.SECRET
     );
+    console.log("hello");
     res.status(200).json({ user, accessToken });
   } catch (error) {
     return res.status(500).json({ message: error });

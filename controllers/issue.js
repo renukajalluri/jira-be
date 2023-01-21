@@ -22,25 +22,23 @@ issueRouter.post("/", userAuthFilter, async (req, res) => {
       summary: req.body.summary,
       description: req.body.description,
     }).save();
-    console.log(issue);
-    console.log(issue.id);
-    console.log(req.body.project_id);
-    const response = await axios.post(
-      `http://18.225.34.117/index`,
-      {
-        issue_id: issue.id,
-        project_id: req.body.project_id,
-        document: issue.summary + " " + issue.description,
-      },
-      {
-        headers: {
-          "Access-Control-Allow-Origin": "*",
-          "Content-type": "Application/json",
-          // 'Authorization' : token
-        },
-      }
-    );
-    console.log(response.data);
+
+    // const response = await axios.post(
+    //   `http://18.225.34.117/index`,
+    //   {
+    //     issue_id: issue.id,
+    //     project_id: req.body.project_id,
+    //     document: issue.summary + " " + issue.description,
+    //   },
+    //   {
+    //     headers: {
+    //       "Access-Control-Allow-Origin": "*",
+    //       "Content-type": "Application/json",
+    //       // 'Authorization' : token
+    //     },
+    //   }
+    // );
+    // console.log(response.data);
     const project = await Project.findByIdAndUpdate(
       { _id: req.body.project_id },
       { $push: { issues: issue._id } }
@@ -48,27 +46,24 @@ issueRouter.post("/", userAuthFilter, async (req, res) => {
     const id = issue.id;
     let now = new Date();
     let date = new Date(now.setSeconds(now.getSeconds() + 180));
-    const job = schedule.scheduleJob(
-      date,
-      async function (id) {
-        const jobIssue = await Issue.findById(id)
-          .populate("issued_to")
-          .populate("comments")
-          .exec();
-        const assignees = jobIssue.issued_to;
-        for (let i in assignees) {
-          if (!checkComment(assignees[i], jobIssue)) {
-            const res = await sendEmail(assignees[i].email);
-            console.log(res);
-          }
-        }
-
-        // else{
-        //     console.log('already commented')
-        // }
-      }.bind(null, id)
-    );
-    return res.status(200).json(project);
+    // const job = schedule.scheduleJob(
+    //   date,
+    //   async function (id) {
+    //     const jobIssue = await Issue.findById(id)
+    //       .populate("issued_to")
+    //       .populate("comments")
+    //       .exec();
+    //     const assignees = jobIssue.issued_to;
+    //     for (let i in assignees) {
+    //       if (!checkComment(assignees[i], jobIssue)) {
+    //         const res = await sendEmail(assignees[i].email);
+    //         console.log(res);
+    //       }
+    //     }
+    //   }.bind(null, id)
+    // );
+    console.log(issue);
+    return res.status(200).json(issue);
   } catch (error) {
     console.log(error);
     res.status(500).json({ message: error });
@@ -100,58 +95,58 @@ issueRouter.get(
         .populate("created_by")
         .populate("comments")
         .exec();
-      const search = issue.summary;
-      try {
-        const data = await axios.get(
-          `http://18.225.34.117/search?search=${search}`,
-          {
-            headers: {
-              "Access-Control-Allow-Origin": "*",
-              "Content-type": "Application/json",
-            },
-          }
-        );
-        if (data) {
-          let issues = [];
-          const array = data.data.Issues;
-          for (let i in array) {
-            let relatedIssues = array[i];
-            var ids = extractId(relatedIssues);
-            console.log("ids", ids[0]);
-            const project = await Project.findById({ _id: ids[1] });
-            const members = project.members;
-            for (let i in members) {
-              if (req.params.token.id == members[i]) {
-                issues.push(ids[0]);
-              }
-            }
-          }
+      // const search = issue.summary;
+      // try {
+      //   const data = await axios.get(
+      //     `http://18.225.34.117/search?search=${search}`,
+      //     {
+      //       headers: {
+      //         "Access-Control-Allow-Origin": "*",
+      //         "Content-type": "Application/json",
+      //       },
+      //     }
+      //   );
+      //   if (data) {
+      //     let issues = [];
+      //     const array = data.data.Issues;
+      //     for (let i in array) {
+      //       let relatedIssues = array[i];
+      //       var ids = extractId(relatedIssues);
+      //       console.log("ids", ids[0]);
+      //       const project = await Project.findById({ _id: ids[1] });
+      //       const members = project.members;
+      //       for (let i in members) {
+      //         if (req.params.token.id == members[i]) {
+      //           issues.push(ids[0]);
+      //         }
+      //       }
+      //     }
 
-          const filterIssues = issues.filter((i) => {
-            return i != req.params.issueId;
-          });
-          // console.log(filterIssues,"f")
+      //     const filterIssues = issues.filter((i) => {
+      //       return i != req.params.issueId;
+      //     });
+      //     // console.log(filterIssues,"f")
 
-          const issuesData = await Issue.find(
-            {
-              _id: { $in: filterIssues },
-            },
-            { summary: 1, description: 1, status: 1, priority: 1 }
-          ).exec();
+      //     const issuesData = await Issue.find(
+      //       {
+      //         _id: { $in: filterIssues },
+      //       },
+      //       { summary: 1, description: 1, status: 1, priority: 1 }
+      //     ).exec();
 
-          // console.log(issuesData)
-          return res.status(200).json(issuesData);
-        }
-      } catch (error) {
-        // res.status(500).json({message:error})
-        console.log(error);
-      }
-
-      return res.status(200).json(issuesData);
+      // console.log(issuesData)
+      return res.status(200).json(issue);
     } catch (error) {
       // res.status(500).json({message:error})
       console.log(error);
     }
+
+    //   } catch (error) {
+    //     // res.status(500).json({message:error})
+    //     console.log(error);
+    //   }
+
+    // }
   }
 );
 
